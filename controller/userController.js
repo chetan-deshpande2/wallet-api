@@ -34,11 +34,75 @@ const jwt = require('jsonwebtoken');
  };
 
  const createToken = (payload) => {
-   return jwt.sign(payload, process.env.JWT_ACC_ACTIVATE, { expiresIn: "5m" });
+   return jwt.sign(payload, process.env.JWT_ACC_ACTIVATE, {
+     expiresIn: "1day",
+   });
  };
 
- 
-//  const validateEmail = (email) => {};
+ exports.activateEmail = async (req, res) => {
+   try {
+     const { token } = req.body;
+     const user = jwt.verify(token, process.env.JWT_ACC_ACTIVATE);
 
-exports.login = async () => {};
+     console.log(user);
+     const { name, email, password } = user;
+
+     const check = await Users.findOne({ email });
+     if (user) {
+       return res.status(400).json({ msg: "User Already Exits" });
+     }
+     const newUser = new User({
+       name,
+       email,
+       password,
+     });
+     await newUser.save();
+     res.status(200).json({ msg: "Account activaed Sucessfully" });
+   } catch (error) {
+     return res.status(500).json({ msg: "error" });
+   }
+ };
+
+ //  const validateEmail = (email) => {};
+
+ exports.login = async (req, res) => {
+   try {
+     const { email, password } = req.body;
+     const user = await Users.findOne({ email });
+     if (!user) {
+       return res.status(400).json({ msg: "email not found" });
+     }
+     const emilMatch = await bcrypt.compare(password, user.password);
+
+     if (!emilMatch) {
+       return res.status(404).json({ msg: "password is incorrect" });
+     }
+
+     const refreshToken = createToken({ id: _user._id });
+     res.cookie("token ", refreshToken, {
+       httpOnly: true,
+       maxAge: 24 * 60 * 60 * 1000, // 1day
+     });
+     res.json({ msg: "login success" });
+   } catch (error) {
+     return res.status(500).json({ msg: "error" });
+   }
+ };
+
+ exportsgetAccessToken = (req, res) => {
+   try {
+     const rf_token = req.cookies.refreshtoken;
+     if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
+
+     jwt.verify(rf_token, process.env.JWT_ACC_ACTIVATE, (err, user) => {
+       if (err) return res.status(400).json({ msg: "Please login now!" });
+
+       const access_token = createAccessToken({ id: user.id });
+       res.json({ access_token });
+     });
+   } catch (err) {
+     return res.status(500).json({ msg: err.message });
+   }
+ };
+ 
 exports.logout = async () => {};
