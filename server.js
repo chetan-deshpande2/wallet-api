@@ -4,13 +4,20 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const connectDB = require("./db/connectDb");
+
+// route import
+const authRoutes = require('./router/user')
 const app = express();
+
+
 
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
-// app.use("/api/v1", authRoutes);
+//main routes
+
+app.use("/api/v1", authRoutes);
 // app.use("/api/v1/", transactionRoute);
 
 
