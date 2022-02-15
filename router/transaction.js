@@ -1,12 +1,10 @@
 const express = require("express");
 
-const userController = require("../controller/userController");
+const transactionController = require("../controller/transactionController");
 
 router = express.Router();
-
-router.post("/register", userController.register);
-
-router.post("/email-activate", userController.activateEmail);
-router.post("/login", userController.login);
+router.post("/addFunds",transactionController.addFund);
+// router.post("/withdrawFunds/:id");
+// router.post("/transferFunds/:id");
 
 module.exports = router;
