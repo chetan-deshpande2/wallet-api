@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 10000,
-      min: 0,
+     
     },
     transaction: [transactionSchema],
   },

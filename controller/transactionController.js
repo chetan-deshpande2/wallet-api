@@ -36,11 +36,11 @@ exports.addFund = async (req, res) => {
   }
 };
 
-const getCurrentAmountByEmail = async (id) => {
-  return User.findOne(id);
+const getCurrentAmountByEmail = async (email) => {
+  return User.findOne(email);
 };
 
-exports.transferFunds = (req, res) => {
+exports.transferFunds = async (req, res) => {
   try {
     let { amount } = req.body;
     amount = Math.abs(Number(amount.trim()));
@@ -49,9 +49,39 @@ exports.transferFunds = (req, res) => {
     const receiver = req.body.transferTo;
     const debitFromURL = `/customers/${sender}/withdrawFunds`;
     const transferToURL = `/customers/${receiver}/addFunds`;
+    let user = getCurrentAmountById(accNo);
+    const currentBal = user.currentBalance + Number(-amount);
+    if (currentBal < 0) {
+      throw Error("Insufficent Funds");
+    }
+    User.findOneAndUpdate(
+      { accNo: sender },
 
-    
+      {
+        $inc: { currentBal: Number(-amount) },
+
+        $push: {
+          transactions: {
+            transactionType: "debit",
+            transactionDetails: {
+              transferredFrom: "Self",
+              transferredTo: receiverName,
+              balance: snapshotOfCurrentBalance,
+              amount: Number(amount),
+            },
+          },
+        },
+      }
+    );
+    this.addFund();
   } catch (error) {
     res.status(404).json({ error: error.message });
   }
+};
+
+const getAccountNumbers = () => {
+  User.find({ $: [{ accNo: sender }, { accNo: receiver }] });
+};
+const getCurrentAmountById = async ({ accNo: sender }) => {
+  return User.findOne(sender);
 };

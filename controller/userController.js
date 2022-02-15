@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
  exports.register = async (req, res) => {
    try {
-     const { name, email, password } = req.body;
+     const { name, email, password, accountN0 } = req.body;
      // if (!name || !email || !password) {
      //   res.json({ msg: "Fill up all the fields" });
      // }
@@ -89,7 +89,7 @@ const jwt = require('jsonwebtoken');
    }
  };
 
- exportsgetAccessToken = (req, res) => {
+ exports.getAccessToken = (req, res) => {
    try {
      const rf_token = req.cookies.refreshtoken;
      if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
