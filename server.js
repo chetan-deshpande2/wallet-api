@@ -7,6 +7,8 @@ const connectDB = require("./db/connectDb");
 
 // route import
 const authRoutes = require('./router/user')
+const transactionRoute = require("./router/transaction");
+
 const app = express();
 
 

@@ -1,5 +1,6 @@
 
 const mongoose = require("mongoose");
+const transactionSchema = require("./transactionModel");
 
 const userSchema = new mongoose.Schema(
   {
@@ -13,6 +14,8 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true },
     role: { type: Number, default: 0 }, //0 for user and 1 for admin
+    transaction: [transactionSchema],
+    
   },
   { timestamps: true }
 );
