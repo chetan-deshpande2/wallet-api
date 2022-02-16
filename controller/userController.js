@@ -81,7 +81,8 @@ exports.login = async (req, res) => {
     const refreshToken = loginToken({ id: user._id });
     res.cookie("token ", refreshToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1day
+      path: "/users/refreshToken",
+      maxAge: 2 * 60 * 60 * 1000, // 2day
     });
     res.json({ msg: "login success" });
   } catch (error) {
@@ -95,20 +96,4 @@ const loginToken = (payload) => {
   });
 };
 
-// exports.getAccessToken = (req, res) => {
-//   try {
-//     const rf_token = req.cookies.refreshtoken;
-//     if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
 
-//     jwt.verify(rf_token, process.env.JWT_ACC_ACTIVATE, (err, user) => {
-//       if (err) return res.status(400).json({ msg: "Please login now!" });
-
-//       const access_token = createAccessToken({ id: user.id });
-//       res.json({ access_token });
-//     });
-//   } catch (err) {
-//     return res.status(500).json({ msg: err.message });
-//   }
-// };
-
-// exports.logout = async () => {};
