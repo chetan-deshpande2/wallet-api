@@ -3,18 +3,18 @@ const User = require("../model/userModel");
 exports.addFund = async (req, res) => {
   try {
     const id = req.params.id;
-    let { amount, email } = req.body;
+    let { amount } = req.body;
     amount = Math.abs(Number(amount.trim()));
     console.log(amount);
 
-    const { currentBalance } = await getCurrentAmountByEmail(email);
+    const { currentBalance } = await getAccountNumber();
 
-    let currentBalanceHolder = currentBalance + amount;
-    Customer.findOneAndUpdate(
+    let AccountCurrentBalance = currentBalance + amount;
+    User.findOneAndUpdate(
       { accNo: id },
 
       {
-        $inc: { currentBal: amount },
+        $inc: { currentBalance: amount },
 
         $push: {
           transactions: {
@@ -22,7 +22,7 @@ exports.addFund = async (req, res) => {
             transactionDetails: {
               transferredFrom: "Self",
               transferredTo: "Self",
-              balance: currentBalanceHolder,
+              balance: AccountCurrentBalance,
               amount: amount,
             },
           },
@@ -30,12 +30,15 @@ exports.addFund = async (req, res) => {
       }
     );
 
-    res.json({ msg: currentBalance });
+    res.json({ msg: transactions });
   } catch (error) {
-    res.status(404).json({ error: err.message });
+    res.status(404).json({ error: "error" });
   }
 };
 
+const getAccountNumber = () => {
+  return User.findOne("CB12S");
+};
 const getCurrentAmountByEmail = async (email) => {
   return User.findOne(email);
 };

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema(
   {
-    transactionType: { type: String },
+    transactionType: { type: String, default: "" },
     transactionDetails: {
       transaferredFrom: {
         type: String,
@@ -36,15 +36,12 @@ const userSchema = new mongoose.Schema(
     accountId: {
       type: String,
       required: true,
-      default: mongoose.Types.ObjectId,
-    },
-    currentBalance: {
-      type: Number,
-      required: true,
-      default: 10000,
-     
     },
     transaction: [transactionSchema],
+    currentBalance: {
+      type: Number,
+      default: 1000,
+    },
   },
   { timestamps: true }
 );

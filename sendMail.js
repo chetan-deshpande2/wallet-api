@@ -2,8 +2,8 @@ const nodemailer = require("nodemailer");
 const nodeMailgun = require("nodemailer-mailgun-transport");
 const mailgun = require("mailgun-js");
 
-const sendMail = (email, url) => {
-  //   console.log(email);
+exports.sendMail = (email, url) => {
+  console.log(email);
   const auth = {
     auth: {
       api_key: process.env.MAILGUN_API_KEY,
@@ -19,7 +19,7 @@ const sendMail = (email, url) => {
   const sendFrom = "noreply@demo.com";
   let userEmail = email;
   const confirmUrl = url;
-
+  console.log(userEmail);
   const mailOptions = {
     from: sendFrom,
     to: userEmail,
@@ -39,33 +39,33 @@ const sendMail = (email, url) => {
   //   });
 };
 
-const transactionMail = () => {
-  const auth = {
-    auth: {
-      api_key: process.env.MAILGUN_API_KEY,
-      domain: process.env.MAILGUN_DOMAIN,
-    },
-  };
-  const mg = mailgun({
-    apiKey: process.env.MAILGUN_API_KEY,
-    domain: process.env.MAILGUN_DOMAIN,
-  });
+// const transactionMail = () => {
+//   const auth = {
+//     auth: {
+//       api_key: process.env.MAILGUN_API_KEY,
+//       domain: process.env.MAILGUN_DOMAIN,
+//     },
+//   };
+//   const mg = mailgun({
+//     apiKey: process.env.MAILGUN_API_KEY,
+//     domain: process.env.MAILGUN_DOMAIN,
+//   });
 
-  //   let transporter = nodemailer.createTestAccount(nodeMailgun(auth));
-  const sendFrom = "noreply@demo.com";
-  let userEmail = email;
-  const confirmUrl = url;
+//   //   let transporter = nodemailer.createTestAccount(nodeMailgun(auth));
+//   const sendFrom = "noreply@demo.com";
+//   let userEmail = email;
+//   const confirmUrl = url;
 
-  const mailOptions = {
-    from: sendFrom,
-    to: userEmail,
-    subject: "Transaction Details",
-    html: ``,
-  };
+//   const mailOptions = {
+//     from: sendFrom,
+//     to: userEmail,
+//     subject: "Transaction Details",
+//     html: ``,
+//   };
 
-  mg.messages().send(mailOptions, function (error, body) {
-    console.log(body);
-  });
-};
+//   mg.messages().send(mailOptions, function (error, body) {
+//     console.log(body);
+//   });
+// };
 
-module.exports = { sendMail };
+
