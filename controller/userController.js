@@ -65,29 +65,35 @@ exports.activateEmail = async (req, res) => {
 
 //  const validateEmail = (email) => {};
 
-// exports.login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(400).json({ msg: "email not found" });
-//     }
-//     const emilMatch = await bcrypt.compare(password, user.password);
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: "email not found" });
+    }
+    const emilMatch = await bcrypt.compare(password, user.password);
 
-//     if (!emilMatch) {
-//       return res.status(404).json({ msg: "password is incorrect" });
-//     }
+    if (!emilMatch) {
+      return res.status(404).json({ msg: "password is incorrect" });
+    }
 
-//     const refreshToken = createToken({ id: _user._id });
-//     res.cookie("token ", refreshToken, {
-//       httpOnly: true,
-//       maxAge: 24 * 60 * 60 * 1000, // 1day
-//     });
-//     res.json({ msg: "login success" });
-//   } catch (error) {
-//     return res.status(500).json({ msg: "error" });
-//   }
-// };
+    const refreshToken = loginToken({ id: user._id });
+    res.cookie("token ", refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 1day
+    });
+    res.json({ msg: "login success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "error" });
+  }
+};
+
+const loginToken = (payload) => {
+  return jwt.sign(payload, process.env.JWT_ACC_LOGIN, {
+    expiresIn: "7days",
+  });
+};
 
 // exports.getAccessToken = (req, res) => {
 //   try {

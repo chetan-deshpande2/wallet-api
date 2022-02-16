@@ -1,46 +1,43 @@
 const User = require("../model/userModel");
 
 exports.addFund = async (req, res) => {
-  try {
-    const id = req.params.id;
-    let { amount } = req.body;
-    amount = Math.abs(Number(amount.trim()));
-    console.log(amount);
+  // const id = req.params.id;
+  let { amount, id } = req.body;
+  amount = Math.abs(Number(amount.trim()));
+  // console.log(req.body);
 
-    const { currentBalance } = await getAccountNumber();
+  User.findOne({ accNo: id })
+    .then((response) => {
+      // console.log(`Before: ${response}`);
+      const snapshotOfCurrentBalance = response.currentBal + amount;
+      // console.log(`Snapshot of Balance: ${snapshotOfCurrentBalance}`);
+      User.findOneAndUpdate(
+        { accNo: id },
 
-    let AccountCurrentBalance = currentBalance + amount;
-    User.findOneAndUpdate(
-      { accNo: id },
+        {
+          $inc: { currentBal: amount },
 
-      {
-        $inc: { currentBalance: amount },
-
-        $push: {
-          transactions: {
-            transactionType: "credit",
-            transactionDetails: {
-              transferredFrom: "Self",
-              transferredTo: "Self",
-              balance: AccountCurrentBalance,
-              amount: amount,
+          $push: {
+            transactions: {
+              transactionType: "credit",
+              transactionDetails: {
+                transferredFrom: "Self",
+                transferredTo: "Self",
+                balance: snapshotOfCurrentBalance,
+                amount: amount,
+              },
             },
           },
-        },
-      }
-    );
-
-    res.json({ msg: transactions });
-  } catch (error) {
-    res.status(404).json({ error: "error" });
-  }
-};
-
-const getAccountNumber = () => {
-  return User.findOne("CB12S");
-};
-const getCurrentAmountByEmail = async (email) => {
-  return User.findOne(email);
+        }
+      ).catch((err) => {
+        res.json({ message: err._message });
+        console.log(err);
+      });
+    })
+    .catch((err) => {
+      res.json({ message: err._message });
+      console.log(err);
+    });
 };
 
 exports.transferFunds = async (req, res) => {
