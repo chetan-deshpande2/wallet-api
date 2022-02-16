@@ -97,3 +97,21 @@ const loginToken = (payload) => {
 };
 
 
+exports.getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.status(201).json(user);
+  } catch (error) {
+    return res.status(500).json({ msg: error.message });
+  }
+};
+
+exports.getAllUsersInfo = async (req, res) => {
+  try {
+    console.log(req.user);
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (error) {
+    return res.status(500).json({ msg: error.message });
+  }
+};
