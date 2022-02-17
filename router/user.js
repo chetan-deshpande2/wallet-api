@@ -10,6 +10,6 @@ router.post("/register", userController.register);
 router.post("/email-activate", userController.activateEmail);
 router.post("/login", userController.login);
 router.get("/info", userController.getUserInfo);
-router.get("/allinfo", authAdmin, userController.getAllUsersInfo);
+router.get("/allinfo", userController.getAllUsersInfo);
 
 module.exports = router;

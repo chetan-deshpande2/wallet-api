@@ -5,7 +5,7 @@ const Mail = require("../sendMail");
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, accountId } = req.body;
+    const { name, email, password, accNo } = req.body;
     // if (!name || !email || !passwordconst transactionMail = () => {
 
     const user = await User.findOne({ email });
@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      accountId,
+      accNo,
     };
     const activateToken = createToken(newUser);
     console.log(activateToken);
@@ -44,7 +44,7 @@ exports.activateEmail = async (req, res) => {
     const user = jwt.verify(token, process.env.JWT_ACC_ACTIVATE);
 
     console.log(user);
-    const { name, email, password, accountId } = user;
+    const { name, email, password, accNo } = user;
 
     // const check = await User.findOne({ email });
     // if (user) {
@@ -54,7 +54,7 @@ exports.activateEmail = async (req, res) => {
       name,
       email,
       password,
-      accountId,
+      accNo,
     });
     await newUser.save();
     res.status(200).json({ msg: "Account activaed Sucessfully" });
