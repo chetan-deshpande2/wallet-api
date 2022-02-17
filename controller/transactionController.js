@@ -5,16 +5,16 @@ exports.addFund = async (req, res) => {
   try {
     //  const id = req.params.id;
     //  console.log(id);
-    let { amount } = req.body;
+    let { amount, id } = req.body;
     amount = Math.abs(Number(amount.trim()));
     console.log(req.body);
 
-    const user = await User.findOne({ accNo: "620db48e56d29c70994fb70b" });
-    console.log(`Before: ${user}`);
+    const user = await User.findOne({ accNo: id });
+    console.log(`Before: ${user.currentBal}`);
     const currentBalance = user.currentBal + amount;
     console.log(`Balance: ${currentBalance}`);
-    User.findOneAndUpdate(
-      { accNo: "620db48e56d29c70994fb70b" },
+    await User.findOneAndUpdate(
+      { accNo: id },
 
       {
         $inc: { currentBal: amount },
@@ -33,8 +33,8 @@ exports.addFund = async (req, res) => {
       }
     );
 
-    transactionSuccessMail(user.email);
-    res.status(200).json({ msg: "success" });
+    // transactionSuccessMail(user.email);
+    res.status(200).json({ msg: user.email });
   } catch (err) {
     res.json({ message: err._message });
   }

@@ -8,23 +8,21 @@ exports.transferFunds = async (req, res) => {
     console.log(req.body);
     const sender = senderId;
     const receiver = receiverId;
-    console.log(receiver);
-    //   const debitFromURL = `/Users/${sender}/withdrawFunds`;
-    //   const transferToURL = `/Users/${receiver}/addFunds`;
+
     const senderAndReceiver = await User.find({
       $or: [{ accNo: sender }, { accNo: receiver }],
     });
+    console.log(senderAndReceiver);
     let [S, R] = senderAndReceiver;
     const senderName = S.accNo === sender ? S.name : R.name;
     const receiverName = R.accNo === receiver ? R.name : S.name;
-    console.log(`Sent From ${senderName} to ${receiverName}`);
-    const user = User.findOne({ accNo: sender });
-    //   console.log(`Current Balance: ${response.currentBal}`);
-    //   console.log(`Negated Amount: ${Number(-amount)}`);
+
+    const user = await User.findOne({ accNo: sender });
+
     const currentBalance = user.currentBal + Number(-amount);
     if (currentBalance < 0) throw Error("Insufficient Funds!");
     console.log(`Balance: ${currentBalance}`);
-    User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { accNo: sender },
       {
         $inc: { currentBal: Number(-amount) },
@@ -41,32 +39,33 @@ exports.transferFunds = async (req, res) => {
         },
       }
     );
-    addFund();
+    await addFund(receiver, amount, senderName);
+    res.json({ msg: "fund transfer sucessfully" });
   } catch (error) {
     res.json({ message: error._message });
     console.log(error);
   }
 };
 
-const addFund = () => {
-  User.findOne({ accNo: receiver }).then((response) => {
-    console.log(`Before: ${response}`);
-    const currentBalance = response.currentBal + amount;
-    console.log(`Snapshot of Balance: ${currentBalance}`);
-    User.findOneAndUpdate(
-      { accNo: receiver },
-      {
-        $inc: { currentBal: amount },
-        transaction: {
-          transactionType: "Credit",
-          transactionDetails: {
-            transferredFrom: senderName,
-            transferredTo: "Self",
-            balance: currentBalance,
-            amount: amount,
-          },
+const addFund = async (receiverId, amount, senderName) => {
+  const receiver = receiverId;
+  const user = await User.findOne({ accNo: receiver });
+  console.log(`Before: ${user}`);
+  const currentBalance = user.currentBal + amount;
+  console.log(`Balance: ${currentBalance}`);
+  await User.findOneAndUpdate(
+    { accNo: receiver },
+    {
+      $inc: { currentBal: amount },
+      transaction: {
+        transactionType: "Credit",
+        transactionDetails: {
+          transferredFrom: senderName,
+          transferredTo: "Self",
+          balance: currentBalance,
+          amount: amount,
         },
-      }
-    );
-  });
+      },
+    }
+  );
 };

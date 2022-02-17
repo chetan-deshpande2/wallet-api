@@ -46,10 +46,10 @@ exports.activateEmail = async (req, res) => {
     console.log(user);
     const { name, email, password, accNo } = user;
 
-    // const check = await User.findOne({ email });
-    // if (user) {
-    //   return res.status(400).json({ msg: "User Already Exits" });
-    // }
+    const check = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ msg: "User Already Exits" });
+    }
     const newUser = new User({
       name,
       email,
@@ -62,8 +62,6 @@ exports.activateEmail = async (req, res) => {
     return res.status(500).json({ msg: "error" });
   }
 };
-
-//  const validateEmail = (email) => {};
 
 exports.login = async (req, res) => {
   try {
@@ -84,6 +82,7 @@ exports.login = async (req, res) => {
       path: "/users/refreshToken",
       maxAge: 2 * 60 * 60 * 1000, // 2day
     });
+
     res.json({ msg: "login success" });
   } catch (error) {
     return res.status(500).json({ msg: "error" });
