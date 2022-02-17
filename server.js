@@ -20,7 +20,7 @@ app.use(cookieParser());
 //main routes
 
 app.use("/api/v1", authRoutes);
-app.use("/api/v1/", transactionRoute);
+app.use("/api/v1", transactionRoute);
 
 
 const port = process.env.PORT || 3002;

@@ -3,9 +3,12 @@ const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema(
   {
-    transactionType: { type: String, default: "" },
+    transactionType: {
+      type: String,
+    },
+
     transactionDetails: {
-      transaferredFrom: {
+      transferredFrom: {
         type: String,
         default: "",
       },
@@ -13,11 +16,20 @@ const transactionSchema = new mongoose.Schema(
         type: String,
         default: "",
       },
-      balance: { type: Number, default: 0 },
-      amount: { type: Number, default: 0 },
+      balance: {
+        type: Number,
+        default: 0,
+      },
+
+      amount: {
+        type: Number,
+        default: 0,
+      },
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const userSchema = new mongoose.Schema(
@@ -33,12 +45,13 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: Number, default: 0 }, //0 for user and 1 for admin
 
-    accountId: {
+    accNo: {
       type: String,
       required: true,
+      default: mongoose.Types.ObjectId,
     },
     transaction: [transactionSchema],
-    currentBalance: {
+    currentBal: {
       type: Number,
       default: 1000,
     },
