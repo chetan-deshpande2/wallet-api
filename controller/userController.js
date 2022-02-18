@@ -67,7 +67,7 @@ exports.activateEmail = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, id } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ msg: "email not found" });
@@ -84,8 +84,9 @@ exports.login = async (req, res) => {
       path: "/users/refreshToken",
       maxAge: 2 * 60 * 60 * 1000, // 2day
     });
-    await transferFunds();
-    res.json({ msg: "login success" });
+    const userData = await getUserInfo(email);
+    console.log(userData);
+    res.json(userData);
   } catch (error) {
     return res.status(500).json({ msg: error.message });
   }
@@ -97,15 +98,12 @@ const loginToken = (payload) => {
   });
 };
 
-exports.getUserInfo = async (req, res) => {
-  try {
-    const id = req.body.id;
-    console.log(id);
-    const user = await User.findOne({ _id: id }, "transaction");
-
-    res.json(user);
-  } catch (error) {
-    return res.status(500).json({ msg: error.message });
+const getUserInfo = async (email) => {
+  if (email) {
+    // const id = req.body.id;
+    // console.log(id);
+    const user = await User.findOne({ email: email }, "transaction");
+    return user;
   }
 };
 
