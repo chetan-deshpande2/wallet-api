@@ -3,7 +3,7 @@ const authAdmin = require('../middleware/authAdmin')
 
 const userController = require('../controller/userController')
 
-router = express.Router()
+const router = express.Router()
 
 router.post('/register', userController.register)
 
