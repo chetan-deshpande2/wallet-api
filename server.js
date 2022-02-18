@@ -18,7 +18,7 @@ app.use(cors())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-//main routes
+// main routes
 
 app.use('/api/v1', authRoutes)
 app.use('/api/v1', transactionRoute)

@@ -1,9 +1,8 @@
 const User = require('../model/userModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const Mail = require('../sendMail')
-const { transferFunds } = require('../controller/transactionController')
-const moment = require('moment')
+const { sendMail } = require('../sendMail')
+// const { transferFunds } = require('../controller/transactionController')
 
 exports.register = async (req, res) => {
   try {
@@ -25,7 +24,7 @@ exports.register = async (req, res) => {
     const activateToken = createToken(newUser)
     console.log(activateToken)
     const url = `${process.env.CLIENT_URL}/user/activate/${activateToken}`
-    Mail.sendMail(email, url)
+    sendMail(email, url)
     res
       .status(200)
       .json({ msg: 'Registeration Success !!Please activate email' })
@@ -67,7 +66,7 @@ exports.activateEmail = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password, id } = req.body
+    const { email, password } = req.body
     const user = await User.findOne({ email })
     if (!user) {
       return res.status(400).json({ msg: 'email not found' })
