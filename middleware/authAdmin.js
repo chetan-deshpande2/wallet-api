@@ -6,7 +6,7 @@ const authAdmin = async (req, res, next) => {
     if (user.role !== 1) {
       return res.status(500).json({ msg: 'Access Denied' })
     }
-      next()
+    next()
   } catch (error) {}
 }
 
