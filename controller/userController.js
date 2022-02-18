@@ -72,9 +72,9 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ msg: "email not found" });
     }
-    const emilMatch = await bcrypt.compare(password, user.password);
+    const emailMatch = await bcrypt.compare(password, user.password);
 
-    if (!emilMatch) {
+    if (!emailMatch) {
       return res.status(404).json({ msg: "password is incorrect" });
     }
 
@@ -99,12 +99,8 @@ const loginToken = (payload) => {
 };
 
 const getUserInfo = async (email) => {
-  if (email) {
-    // const id = req.body.id;
-    // console.log(id);
-    const user = await User.findOne({ email: email }, "transaction");
-    return user;
-  }
+  const user = await User.findOne({ email: email }, "transaction");
+  return user;
 };
 
 exports.getAllUsersInfo = async (req, res) => {

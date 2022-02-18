@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema(
     transaction: [transactionSchema],
     currentBal: {
       type: Number,
-      default: 1000,
+      default: 10000,
     },
   },
   { timestamps: true }
