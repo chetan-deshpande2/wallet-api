@@ -1,13 +1,13 @@
-const Users = require("../model/userModel");
+const Users = require('../model/userModel')
 
 const authAdmin = async (req, res, next) => {
   try {
-    const user = await Users.findOne({ _id: req.user.id });
+    const user = await Users.findOne({ _id: req.user.id })
     if (user.role !== 1) {
-      return res.status(500).json({ msg: "Access Denied" });
+      return res.status(500).json({ msg: 'Access Denied' })
     }
-    next();
+    next()
   } catch (error) {}
-};
+}
 
-module.exports = authAdmin;
+module.exports = authAdmin

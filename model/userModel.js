@@ -1,36 +1,35 @@
-
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 const transactionSchema = new mongoose.Schema(
   {
     transactionType: {
-      type: String,
+      type: String
     },
 
     transactionDetails: {
       transferredFrom: {
         type: String,
-        default: "",
+        default: ''
       },
       transferredTo: {
         type: String,
-        default: "",
+        default: ''
       },
       balance: {
         type: Number,
-        default: 0,
+        default: 0
       },
 
       amount: {
         type: Number,
-        default: 0,
-      },
-    },
+        default: 0
+      }
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
-);
+)
 
 const userSchema = new mongoose.Schema(
   {
@@ -40,7 +39,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
       unique: true,
-      lowercase: true,
+      lowercase: true
     },
     password: { type: String, required: true },
     role: { type: Number, default: 0 }, //0 for user and 1 for admin
@@ -48,15 +47,15 @@ const userSchema = new mongoose.Schema(
     accNo: {
       type: String,
       required: true,
-      default: mongoose.Types.ObjectId,
+      default: mongoose.Types.ObjectId
     },
     transaction: [transactionSchema],
     currentBal: {
       type: Number,
-      default: 10000,
-    },
+      default: 10000
+    }
   },
   { timestamps: true }
-);
+)
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema)
