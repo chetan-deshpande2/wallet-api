@@ -1,13 +1,12 @@
-const Users = require('../model/userModel')
+import Users from '../model/userModel'
+import asyncWrapper from '../utils/asyncWrapper'
 
-const authAdmin = async (req, res, next) => {
-  try {
-    const user = await Users.findOne({ _id: req.user.id })
-    if (user.role !== 1) {
-      return res.status(500).json({ msg: 'Access Denied' })
-    }
-    next()
-  } catch (error) {}
-}
+const authAdmin = asyncWrapper(async (req, res, next) => {
+  const user = await Users.findOne({ _id: req.user.id })
+  if (user.role !== 1) {
+    return res.status(500).json({ msg: 'Access Denied' })
+  }
+  next()
+})
 
-module.exports = authAdmin
+export default authAdmin

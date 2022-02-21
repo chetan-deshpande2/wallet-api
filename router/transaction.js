@@ -1,11 +1,9 @@
-const express = require('express')
+import express from 'express'
 
-const transactionController = require('../controller/transactionController')
+import transactionController from '../controller/transactionController'
 
 const router = express.Router()
 
-router.post('/addFunds', transactionController.addFundstoSelf)
-router.post('/withdrawFunds', transactionController.transferFunds)
-// router.post("/transferFunds/:id");
+router.post('/transferFunds', transactionController.transferFunds)
 
-module.exports = router
+export default router

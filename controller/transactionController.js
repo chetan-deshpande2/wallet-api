@@ -1,88 +1,56 @@
-const User = require('../model/userModel')
-const { transactionFailedMail, transactionSuccessMail } = require('../sendMail')
+import User from '../model/userModel'
 
-exports.addFundstoSelf = async (req, res) => {
-  try {
-    let { amount, id } = req.body
-    amount = Math.abs(Number(amount.trim()))
+import transactionSuccessMail from '../utils/transactionEmail'
+import asyncWrapper from '../utils/asyncWrapper'
+import { createCustomError, CustomAPIError } from '../utils/appError'
 
-    const user = await User.findOne({ accNo: id })
+const transferFunds = asyncWrapper(async (req, res, next) => {
+  let { amount, senderId, receiverId } = req.body
+  amount = Math.abs(Number(amount.trim()))
 
-    const currentBalance = user.currentBal + amount
+  const sender = senderId
+  const receiver = receiverId
 
-    await User.findOneAndUpdate(
-      { accNo: id },
+  const senderAndReceiver = await User.find({
+    $or: [{ accNo: sender }, { accNo: receiver }]
+  })
 
-      {
-        $inc: { currentBal: amount },
+  const [S, R] = senderAndReceiver
+  const senderName = S.accNo === sender ? S.name : R.name
+  const receiverName = R.accNo === receiver ? R.name : S.name
 
-        $push: {
-          transaction: {
-            transactionType: 'credit',
-            transactionDetails: {
-              transferredFrom: 'Self',
-              transferredTo: 'Self',
-              balance: currentBalance,
-              amount: amount
-            }
+  const user = await User.findOne({ accNo: sender })
+  if (!user) {
+    return next(createCustomError('User not found', 404))
+  }
+
+  const currentBalance = user.currentBal + Number(-amount)
+  if (currentBalance < 0) throw Error('Insufficient Funds!')
+
+  const updateUser = await User.findOneAndUpdate(
+    { accNo: sender },
+    {
+      $inc: { currentBal: Number(-amount) },
+      $push: {
+        transaction: {
+          transactionType: 'Debit',
+          transactionDetails: {
+            transferredFrom: 'Self',
+            transferredTo: receiverName,
+            balance: currentBalance,
+            amount: Number(amount)
           }
         }
       }
-    )
-
-    transactionSuccessMail(user.email)
-    res.status(200).json({ msg: user.email })
-  } catch (error) {
-    res.json({ msg: error.message })
+    }
+  )
+  if (!updateUser) {
+    return next(createCustomError('unable to update user', 404))
   }
-}
-
-exports.transferFunds = async (req, res) => {
-  try {
-    let { amount, senderId, receiverId } = req.body
-    amount = Math.abs(Number(amount.trim()))
-    console.log(req.body)
-    const sender = senderId
-    const receiver = receiverId
-
-    const senderAndReceiver = await User.find({
-      $or: [{ accNo: sender }, { accNo: receiver }]
-    })
-    console.log(senderAndReceiver)
-    const [S, R] = senderAndReceiver
-    const senderName = S.accNo === sender ? S.name : R.name
-    const receiverName = R.accNo === receiver ? R.name : S.name
-
-    const user = await User.findOne({ accNo: sender })
-
-    const currentBalance = user.currentBal + Number(-amount)
-    if (currentBalance < 0) throw Error('Insufficient Funds!')
-    console.log(`Balance: ${currentBalance}`)
-    await User.findOneAndUpdate(
-      { accNo: sender },
-      {
-        $inc: { currentBal: Number(-amount) },
-        $push: {
-          transaction: {
-            transactionType: 'Debit',
-            transactionDetails: {
-              transferredFrom: 'Self',
-              transferredTo: receiverName,
-              balance: currentBalance,
-              amount: Number(amount)
-            }
-          }
-        }
-      }
-    )
-    await addFund(receiver, amount, senderName)
-    transactionSuccessMail(user.email)
-    await res.json({ msg: 'fund transfer sucessfully' })
-  } catch (error) {
-    res.json({ msg: error.message })
-    console.log(error)
-  }
-}
+  await addFund(receiver, amount, senderName)
+  transactionSuccessMail(user.email)
+  res.json({ msg: 'fund transfer sucessfully' })
+})
 
 const addFund = async (receiver, amount, senderName) => {
   const user = await User.findOne({ accNo: receiver })
@@ -106,3 +74,5 @@ const addFund = async (receiver, amount, senderName) => {
   )
   transactionSuccessMail(user.email)
 }
+
+export default transferFunds

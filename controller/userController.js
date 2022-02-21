@@ -1,37 +1,33 @@
-const User = require('../model/userModel')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const { sendMail } = require('../sendMail')
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import User from '../model/userModel'
+import asyncWrapper from '../utils/asyncWrapper'
+import createCustomError from '../utils/appError'
+
+import { sendMail } from '../utils/sendMail'
 // const { transferFunds } = require('../controller/transactionController')
 
-exports.register = async (req, res) => {
-  try {
-    const { name, email, password, accNo } = req.body
-    // if (!name || !email || !passwordconst transactionMail = () => {
+const register = asyncWrapper(async (req, res, next) => {
+  const { name, email, password, accNo } = req.body
 
-    const user = await User.findOne({ email })
-    if (user) {
-      return res.status(400).json({ msg: 'User Already Exits' })
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12)
-    const newUser = {
-      name,
-      email,
-      password: hashedPassword,
-      accNo
-    }
-    const activateToken = createToken(newUser)
-    console.log(activateToken)
-    const url = `${process.env.CLIENT_URL}/user/activate/${activateToken}`
-    sendMail(email, url)
-    res
-      .status(200)
-      .json({ msg: 'Registeration Success !!Please activate email' })
-  } catch (error) {
-    return res.status(500).json({ msg: error.message })
+  const user = await User.findOne({ email })
+  if (user) {
+    return res.status(400).json({ msg: 'User Already Exits' })
   }
-}
+
+  const hashedPassword = await bcrypt.hash(password, 12)
+  const newUser = {
+    name,
+    email,
+    password: hashedPassword,
+    accNo
+  }
+  const activateToken = createToken(newUser)
+
+  const url = `${process.env.CLIENT_URL}/user/activate/${activateToken}`
+  sendMail(email, url)
+  res.status(200).json({ msg: 'Registeration Success !!Please activate email' })
+})
 
 const createToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_ACC_ACTIVATE, {
@@ -39,58 +35,53 @@ const createToken = (payload) => {
   })
 }
 
-exports.activateEmail = async (req, res) => {
-  try {
-    const { token } = req.body
-    const user = jwt.verify(token, process.env.JWT_ACC_ACTIVATE)
+const activateEmail = asyncWrapper(async (req, res, next) => {
+  const { token } = req.body
+  const user = jwt.verify(token, process.env.JWT_ACC_ACTIVATE)
 
-    console.log(user)
-    const { name, email, password, accNo } = user
+  const { name, email, password, accNo } = user
 
-    const check = await User.findOne({ email })
-    if (check) {
-      return res.status(400).json({ msg: 'User Already Exits' })
-    }
-    const newUser = new User({
-      name,
-      email,
-      password,
-      accNo
-    })
-    await newUser.save()
-    res.status(200).json({ msg: 'Account activaed Sucessfully' })
-  } catch (error) {
-    return res.status(500).json({ msg: error.message })
+  const check = await User.findOne({ email })
+  if (check) {
+    return res.status(400).json({ msg: 'User Already Exits' })
   }
-}
-
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body
-    const user = await User.findOne({ email })
-    if (!user) {
-      return res.status(400).json({ msg: 'email not found' })
-    }
-    const emailMatch = await bcrypt.compare(password, user.password)
-
-    if (!emailMatch) {
-      return res.status(404).json({ msg: 'password is incorrect' })
-    }
-
-    const refreshToken = loginToken({ id: user._id })
-    res.cookie('token ', refreshToken, {
-      httpOnly: true,
-      path: '/users/refreshToken',
-      maxAge: 2 * 60 * 60 * 1000 // 2day
-    })
-    const userData = await getUserInfo(email)
-    console.log(userData)
-    res.json(userData)
-  } catch (error) {
-    return res.status(500).json({ msg: error.message })
+  const newUser = new User({
+    name,
+    email,
+    password,
+    accNo
+  })
+  await newUser.save()
+  res.status(200).json({ msg: 'Account activaed Sucessfully' })
+  if (!newUser) {
+    return next(createCustomError('unable to update user', 404))
   }
-}
+})
 
+const login = asyncWrapper(async (req, res, next) => {
+  const { email, password } = req.body
+  const user = await User.findOne({ email })
+  if (!user) {
+    return res.status(400).json({ msg: 'email not found' })
+  }
+  const emailMatch = await bcrypt.compare(password, user.password)
+
+  if (!emailMatch) {
+    return res.status(404).json({ msg: 'password is incorrect' })
+  }
+
+  const refreshToken = loginToken({ id: user._id })
+  res.cookie('token ', refreshToken, {
+    httpOnly: true,
+    path: '/users/refreshToken',
+    maxAge: 2 * 60 * 60 * 1000 // 2day
+  })
+  const userData = await getUserInfo(email)
+  if (!userData) {
+    return next(createCustomError('User not found', 404))
+  }
+  res.json(userData)
+})
 const loginToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_ACC_LOGIN, {
     expiresIn: '7days'
@@ -105,22 +96,21 @@ const getUserInfo = async (email) => {
   return user
 }
 
-exports.getAllUsersInfo = async (req, res) => {
-  try {
-    console.log(req.user)
-    const users = await User.find(req.user, 'email transaction')
-    res.json(users)
-  } catch (error) {
-    return res.status(500).json({ msg: error.message })
+const getAllUsersInfo = asyncWrapper(async (req, res, next) => {
+  const users = await User.find(req.user, 'email transaction')
+  res.json(users)
+  if (!users) {
+    return next(createCustomError('unable to update user', 404))
   }
-}
+})
 
-exports.updateUserRole = async (req, res) => {
-  try {
-    const { role, id } = req.body
-    await User.findOneAndUpdate({ _id: id }, { role })
-    res.json({ msg: 'role updated' })
-  } catch (error) {
-    return res.status(500).json({ msg: error.message })
+const updateUserRole = asyncWrapper(async (req, res, next) => {
+  const { role, id } = req.body
+  const user = await User.findOneAndUpdate({ _id: id }, { role })
+  if (!user) {
+    return next(createCustomError('unable to update user', 404))
   }
-}
+  res.json({ msg: 'role updated' })
+})
+
+export { register, activateEmail, login, getAllUsersInfo, updateUserRole }

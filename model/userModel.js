@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const transactionSchema = new mongoose.Schema(
   {
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true
     },
     password: { type: String, required: true },
-    role: { type: Number, default: 0 }, //0 for user and 1 for admin
+    role: { type: Number, default: 0 }, // !0 for user and 1 for admin
 
     accNo: {
       type: String,
@@ -58,4 +58,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-module.exports = mongoose.model('User', userSchema)
+export default mongoose.model('User', userSchema)
