@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import User from '../model/userModel'
-import asyncWrapper from '../utils/asyncWrapper'
-import { createCustomError } from '../utils/appError'
+import User from '../model/userModel.js'
 
-import { sendMail } from '../utils/sendMail'
-// const { transferFunds } = require('../controller/transactionController')
+import { asyncWrapper } from '../utils/asyncWrapper.js'
+import { createCustomError } from '../utils/appError.js'
+
+import { sendMail } from '../utils/sendMail.js'
 
 const createToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_ACC_ACTIVATE, {
@@ -29,11 +29,12 @@ const register = asyncWrapper(async (req, res, next) => {
     password: hashedPassword,
     accNo
   }
+
   const activateToken = createToken(newUser)
 
   const url = `${process.env.CLIENT_URL}/user/activate/${activateToken}`
 
-  await sendMail(email, url)
+  sendMail(user.email, url)
 
   res.status(200).json({ msg: 'Registeration Success !!Please activate email' })
 })
@@ -54,13 +55,20 @@ const activateEmail = asyncWrapper(async (req, res, next) => {
     password,
     accNo
   })
+  if (!newUser) {
+    return next(createCustomError('Email Verification Failed', 404))
+  }
 
   await newUser.save()
+
   res.status(200).json({ msg: 'Account activaed Sucessfully' })
-  if (!newUser) {
-    return next(createCustomError('unable to add user', 404))
-  }
 })
+
+const loginToken = (payload) => {
+  return jwt.sign(payload, process.env.JWT_ACC_LOGIN, {
+    expiresIn: '7days'
+  })
+}
 
 const login = asyncWrapper(async (req, res, next) => {
   const { email, password } = req.body
@@ -88,12 +96,6 @@ const login = asyncWrapper(async (req, res, next) => {
   res.json(userData)
 })
 
-const loginToken = (payload) => {
-  return jwt.sign(payload, process.env.JWT_ACC_LOGIN, {
-    expiresIn: '7days'
-  })
-}
-
 const getUserInfo = async (email) => {
   const user = await User.findOne(
     { email: email },
@@ -101,14 +103,6 @@ const getUserInfo = async (email) => {
   )
   return user
 }
-
-const getAllUsersInfo = asyncWrapper(async (req, res, next) => {
-  const users = await User.find(req.user, 'email transaction')
-  res.json(users)
-  if (!users) {
-    return next(createCustomError('unable to update user', 404))
-  }
-})
 
 const updateUserRole = asyncWrapper(async (req, res, next) => {
   const { role, id } = req.body
@@ -119,4 +113,4 @@ const updateUserRole = asyncWrapper(async (req, res, next) => {
   res.json({ msg: 'role updated' })
 })
 
-export { register, activateEmail, login, getAllUsersInfo, updateUserRole }
+export { register, activateEmail, login, updateUserRole }

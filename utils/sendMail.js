@@ -31,4 +31,4 @@ const sendMail = (email, url) => {
   })
 }
 
-export default sendMail
+export { sendMail }

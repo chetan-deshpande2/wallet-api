@@ -1,5 +1,5 @@
 import mailgun from 'mailgun-js'
-import { trasactionDetails } from '../controller/transactionController'
+import { Details } from '../controller/transactionController.js'
 
 const transactionSuccessMail = (email) => {
   const mg = mailgun({
@@ -11,13 +11,13 @@ const transactionSuccessMail = (email) => {
   const userEmail = email
 
   const htmlCode = `Transaction Successful 
-  ${trasactionDetails}`
+  ${Details}`
 
   const mailOptions = {
     from: sendFrom,
     to: userEmail,
     subject: 'Transaction Details',
-    html: 
+    html: ``
   }
 
   mg.messages().send(mailOptions, function (error, body) {
@@ -28,4 +28,4 @@ const transactionSuccessMail = (email) => {
   })
 }
 
-export default transactionSuccessMail
+export { transactionSuccessMail }

@@ -1,4 +1,4 @@
-import { CustomAPIError } from '../utils/appError'
+import { CustomAPIError } from '../utils/appError.js'
 
 const errorHandler = (err, req, res, next) => {
   console.log(err)
@@ -8,4 +8,4 @@ const errorHandler = (err, req, res, next) => {
   return res.status(500).json({ msg: 'Something went Wrong' })
 }
 
-export default errorHandler
+export { errorHandler }

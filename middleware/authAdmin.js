@@ -1,5 +1,5 @@
-import Users from '../model/userModel'
-import asyncWrapper from '../utils/asyncWrapper'
+import Users from '../model/userModel.js'
+import asyncWrapper from '../utils/asyncWrapper.js'
 
 const authAdmin = asyncWrapper(async (req, res, next) => {
   const user = await Users.findOne({ _id: req.user.id })

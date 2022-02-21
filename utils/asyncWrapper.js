@@ -8,4 +8,4 @@ const asyncWrapper = (fn) => {
   }
 }
 
-export default asyncWrapper
+export { asyncWrapper }
