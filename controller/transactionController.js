@@ -75,4 +75,15 @@ const addFund = async (receiver, amount, senderName) => {
   transactionSuccessMail(user.email)
 }
 
-export default transferFunds
+
+const trasactionDetails = asyncWrapper(async (req, res, next) => {
+  const user = await User.findById(req.user.id)
+  if (user.role === 1) {
+    const alllTrx = await trasactionDetails.find()
+    res.status(200).json({ status: `welcome admin`, result: alllTrx })
+  } else {
+    return next(createCustomError('unable to update user', 404))
+  }
+})
+
+export { transferFunds, trasactionDetails }

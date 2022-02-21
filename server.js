@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 // !main routes
 
-// app.use('/api/v1', authRoutes)
+app.use('/api/v1', authRoutes)
 app.use('/api/v1', transactionRoute)
 app.use(notFound)
 
@@ -31,9 +31,7 @@ const port = process.env.PORT || 3002
 const start = async () => {
   try {
     await connectDB(process.env.MONGODB_URL)
-    app.listen(port, () => {
-      console.log('server is listening')
-    })
+    app.listen(port)
   } catch (error) {
     throw new Error("Couldn't connect")
   }
