@@ -10,14 +10,13 @@ const transactionSuccessMail = (email) => {
   const sendFrom = 'noreply@demo.com'
   const userEmail = email
 
-  const htmlCode = `Transaction Successful 
-  ${Details}`
+  const htmlCode = `Transaction Successful ${Details}`
 
   const mailOptions = {
     from: sendFrom,
     to: userEmail,
     subject: 'Transaction Details',
-    html: ``
+    html: htmlCode
   }
 
   mg.messages().send(mailOptions, function (error, body) {
