@@ -1,4 +1,5 @@
 import mailgun from 'mailgun-js'
+import 'dotenv/config'
 
 const sendMail = (email, url) => {
   const mg = mailgun({

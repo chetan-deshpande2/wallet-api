@@ -1,4 +1,5 @@
 import mailgun from 'mailgun-js'
+import 'dotenv/config'
 import { Details } from '../controller/transactionController.js'
 
 const transactionSuccessMail = (email) => {
