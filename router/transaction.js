@@ -2,8 +2,8 @@ import express from 'express'
 
 import transactionController from '../controller/transactionController'
 
-const router = express.Router()
+const transactionRoute = express.Router()
 
-router.post('/transferFunds', transactionController.transferFunds)
+transactionRoute.post('/transferFunds', transactionController.transferFunds)
 
-export default router
+export default transactionRoute

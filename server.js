@@ -8,9 +8,10 @@ import connectDB from './db/connectDb.js'
 
 //! route import
 
-import authRoutes from './router/user.js'
+import authRouter from './router/user.js'
 import transactionRoute from './router/transaction.js'
 import notFound from './utils/notFound.js'
+import errorHandler from './middleware/errorHandler.js'
 
 const app = express()
 
@@ -18,13 +19,13 @@ app.use(express.json())
 app.use(cors())
 
 app.use(cookieParser())
-app.use(bodyParser.urlencoded({ extended: false }))
 
 // !main routes
 
-app.use('/api/v1', authRoutes)
+app.use('/api/v1', authRouter)
 app.use('/api/v1', transactionRoute)
 app.use(notFound)
+app.use(errorHandler)
 
 const port = process.env.PORT || 3002
 

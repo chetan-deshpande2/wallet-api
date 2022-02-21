@@ -2,7 +2,7 @@ import User from '../model/userModel'
 
 import transactionSuccessMail from '../utils/transactionEmail'
 import asyncWrapper from '../utils/asyncWrapper'
-import { createCustomError, CustomAPIError } from '../utils/appError'
+import { createCustomError } from '../utils/appError'
 
 const transferFunds = asyncWrapper(async (req, res, next) => {
   let { amount, senderId, receiverId } = req.body

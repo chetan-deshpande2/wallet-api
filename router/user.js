@@ -1,17 +1,17 @@
 import express from 'express'
 
-import authAdmin from '../middleware/authAdmin'
+// import authAdmin from '../middleware/authAdmin'
 
 import userController from '../controller/userController'
 
-const router = express.Router()
+const authRouter = express.Router()
 
-router.post('/register', userController.register)
+authRouter.post('/register', userController.register)
 
-router.post('/email-activate', userController.activateEmail)
-router.post('/login', userController.login)
-// router.post("/info", userController.getUserInfo);
-router.get('/allinfo', authAdmin, userController.getAllUsersInfo)
-router.post('/updaterole', userController.updateUserRole)
+authRouter.post('/email-activate', userController.activateEmail)
+authRouter.post('/login', userController.login)
 
-export default router
+authRouter.get('/allinfo', userController.getAllUsersInfo)
+authRouter.post('/updaterole', userController.updateUserRole)
+
+export default authRouter

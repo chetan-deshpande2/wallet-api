@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import User from '../model/userModel'
 import asyncWrapper from '../utils/asyncWrapper'
-import createCustomError from '../utils/appError'
+import { createCustomError } from '../utils/appError'
 
 import { sendMail } from '../utils/sendMail'
 // const { transferFunds } = require('../controller/transactionController')
