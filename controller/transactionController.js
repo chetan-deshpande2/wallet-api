@@ -4,6 +4,7 @@ import { transactionSuccessMail } from '../utils/transactionEmail.js'
 import { asyncWrapper } from '../utils/asyncWrapper.js'
 import { createCustomError } from '../utils/appError.js'
 
+
 const transferFunds = asyncWrapper(async (req, res, next) => {
   let { amount, senderId, receiverId } = req.body
   amount = Math.abs(Number(amount.trim()))
@@ -46,10 +47,10 @@ const transferFunds = asyncWrapper(async (req, res, next) => {
   res.json({ msg: 'fund transfer sucessfully' })
 })
 
-const addFund = async (receiver, amount, senderName) => {
+const addFund = async (receiver, amount, senderName, res) => {
   const user = await User.findOne({ accNo: receiver })
   if (!user) {
-    return next(createCustomError('user not found', 404))
+    res.status(404).json({ msg: 'User not found' })
   }
   const currentBalance = user.currentBal + amount
   await User.findOneAndUpdate(
@@ -76,7 +77,7 @@ const trasactionDetails = asyncWrapper(async (req, res, next) => {
   const user = await User.findById(req.user.id)
   if (user.role === 1) {
     const alllTrx = await trasactionDetails.find()
-    res.status(200).json({ status: `welcome admin`, result: alllTrx })
+    res.status(200).json({ result: alllTrx })
   } else {
     return next(createCustomError('unable to update user', 404))
   }
